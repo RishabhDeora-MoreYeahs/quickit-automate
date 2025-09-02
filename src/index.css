@@ -1,15 +1,47 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-/* Definition of the design system. All colors, gradients, fonts, etc should be defined here. 
-All colors MUST be HSL.
-*/
+/* Automation Workflow Builder Design System - All colors MUST be HSL */
 
 @layer base {
   :root {
     --background: 0 0% 100%;
     --foreground: 222.2 84% 4.9%;
+    
+    /* Automation Workflow Specific Colors */
+    --automation-primary: 259 94% 51%;          /* Deep purple for primary actions */
+    --automation-primary-hover: 259 94% 45%;    /* Darker purple on hover */
+    --automation-primary-light: 259 100% 97%;   /* Very light purple background */
+    --automation-secondary: 220 91% 58%;        /* Deep blue for secondary elements */
+    --automation-secondary-hover: 220 91% 52%;  /* Darker blue on hover */
+    
+    /* Canvas & Layout */
+    --automation-canvas: 216 20% 98%;           /* Light grey canvas background */
+    --automation-border: 220 13% 91%;           /* Light border color */
+    --automation-border-dashed: 220 13% 85%;    /* Dashed border color */
+    
+    /* Block States */
+    --automation-block-bg: 0 0% 100%;           /* White block background */
+    --automation-block-hover: 220 14% 96%;      /* Light hover background */
+    --automation-block-shadow: 220 43% 11%;     /* Shadow color */
+    
+    /* Status Colors */
+    --automation-success: 142 76% 36%;          /* Green for active/success */
+    --automation-success-light: 142 76% 95%;    /* Light green background */
+    --automation-warning: 45 93% 58%;           /* Yellow for warnings */
+    --automation-error: 0 84% 60%;              /* Red for errors */
+    
+    /* Text Colors */
+    --automation-text-primary: 222.2 84% 4.9%;  /* Primary text */
+    --automation-text-secondary: 215.4 16.3% 46.9%; /* Secondary text */
+    --automation-text-muted: 215.4 16.3% 65%;   /* Muted text */
+    
+    /* Interactive Elements */
+    --automation-connector-line: 220 13% 85%;    /* Dotted connector lines */
+    --automation-connector-bg: 0 0% 100%;        /* Connector background */
+    --automation-connector-hover: 259 94% 51%;   /* Connector hover state */
 
     --card: 0 0% 100%;
     --card-foreground: 222.2 84% 4.9%;
@@ -101,5 +133,187 @@ All colors MUST be HSL.
 
   body {
     @apply bg-background text-foreground;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+  }
+}
+
+@layer components {
+  /* Automation Canvas Styles */
+  .automation-canvas {
+    background-color: hsl(var(--automation-canvas));
+    min-height: calc(100vh - 120px);
+  }
+  
+  /* Workflow Block Base Styles */
+  .workflow-block {
+    background-color: hsl(var(--automation-block-bg));
+    border: 2px solid hsl(var(--automation-border));
+    border-radius: 12px;
+    padding: 24px;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 2px 8px hsl(var(--automation-block-shadow) / 0.05);
+  }
+  
+  .workflow-block:hover {
+    background-color: hsl(var(--automation-block-hover));
+    border-color: hsl(var(--automation-primary));
+    box-shadow: 0 4px 16px hsl(var(--automation-block-shadow) / 0.1);
+  }
+  
+  .workflow-block--dashed {
+    border-style: dashed;
+    border-color: hsl(var(--automation-border-dashed));
+  }
+  
+  .workflow-block--configured {
+    border-color: hsl(var(--automation-primary));
+    background-color: hsl(var(--automation-primary-light));
+  }
+  
+  /* Connector Styles */
+  .workflow-connector {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 48px;
+    position: relative;
+  }
+  
+  .workflow-connector::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 50%;
+    width: 2px;
+    height: 100%;
+    background: linear-gradient(to bottom, 
+      hsl(var(--automation-connector-line)) 0%, 
+      hsl(var(--automation-connector-line)) 45%, 
+      transparent 45%, 
+      transparent 55%, 
+      hsl(var(--automation-connector-line)) 55%, 
+      hsl(var(--automation-connector-line)) 100%);
+    transform: translateX(-50%);
+  }
+  
+  .workflow-connector-add {
+    background-color: hsl(var(--automation-connector-bg));
+    border: 2px solid hsl(var(--automation-connector-line));
+    border-radius: 50%;
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    z-index: 10;
+  }
+  
+  .workflow-connector-add:hover {
+    border-color: hsl(var(--automation-connector-hover));
+    background-color: hsl(var(--automation-primary-light));
+    transform: scale(1.1);
+  }
+  
+  /* Branch Styles for Conditions */
+  .workflow-branch {
+    position: relative;
+    display: flex;
+    gap: 32px;
+    margin: 24px 0;
+  }
+  
+  .workflow-branch::before {
+    content: '';
+    position: absolute;
+    top: -24px;
+    left: 50%;
+    width: 2px;
+    height: 24px;
+    background: linear-gradient(to bottom, 
+      hsl(var(--automation-connector-line)) 0%, 
+      hsl(var(--automation-connector-line)) 50%, 
+      transparent 50%);
+    transform: translateX(-50%);
+  }
+  
+  /* Automation Buttons */
+  .automation-btn-primary {
+    background-color: hsl(var(--automation-primary));
+    color: white;
+    border: none;
+    border-radius: 8px;
+    padding: 12px 24px;
+    font-weight: 500;
+    transition: all 0.2s ease;
+    cursor: pointer;
+  }
+  
+  .automation-btn-primary:hover:not(:disabled) {
+    background-color: hsl(var(--automation-primary-hover));
+    transform: translateY(-1px);
+  }
+  
+  .automation-btn-primary:disabled {
+    background-color: hsl(var(--automation-text-muted));
+    cursor: not-allowed;
+  }
+  
+  .automation-btn-secondary {
+    background-color: transparent;
+    color: hsl(var(--automation-primary));
+    border: 2px solid hsl(var(--automation-primary));
+    border-radius: 8px;
+    padding: 10px 22px;
+    font-weight: 500;
+    transition: all 0.2s ease;
+    cursor: pointer;
+  }
+  
+  .automation-btn-secondary:hover {
+    background-color: hsl(var(--automation-primary-light));
+  }
+  
+  /* Toggle Switch Styles */
+  .automation-toggle {
+    position: relative;
+    width: 60px;
+    height: 32px;
+    background-color: hsl(var(--automation-text-muted));
+    border-radius: 16px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+  }
+  
+  .automation-toggle--active {
+    background-color: hsl(var(--automation-success));
+  }
+  
+  .automation-toggle::after {
+    content: '';
+    position: absolute;
+    top: 2px;
+    left: 2px;
+    width: 28px;
+    height: 28px;
+    background: white;
+    border-radius: 50%;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  }
+  
+  .automation-toggle--active::after {
+    transform: translateX(28px);
+  }
+  
+  /* Status Indicators */
+  .automation-status-active {
+    color: hsl(var(--automation-success));
+    background-color: hsl(var(--automation-success-light));
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 14px;
+    font-weight: 500;
   }
 }

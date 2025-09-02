@@ -28,6 +28,29 @@ export default {
 					DEFAULT: 'hsl(var(--primary))',
 					foreground: 'hsl(var(--primary-foreground))'
 				},
+				automation: {
+					primary: 'hsl(var(--automation-primary))',
+					'primary-hover': 'hsl(var(--automation-primary-hover))',
+					'primary-light': 'hsl(var(--automation-primary-light))',
+					secondary: 'hsl(var(--automation-secondary))',
+					'secondary-hover': 'hsl(var(--automation-secondary-hover))',
+					canvas: 'hsl(var(--automation-canvas))',
+					border: 'hsl(var(--automation-border))',
+					'border-dashed': 'hsl(var(--automation-border-dashed))',
+					'block-bg': 'hsl(var(--automation-block-bg))',
+					'block-hover': 'hsl(var(--automation-block-hover))',
+					'block-shadow': 'hsl(var(--automation-block-shadow))',
+					success: 'hsl(var(--automation-success))',
+					'success-light': 'hsl(var(--automation-success-light))',
+					warning: 'hsl(var(--automation-warning))',
+					error: 'hsl(var(--automation-error))',
+					'text-primary': 'hsl(var(--automation-text-primary))',
+					'text-secondary': 'hsl(var(--automation-text-secondary))',
+					'text-muted': 'hsl(var(--automation-text-muted))',
+					'connector-line': 'hsl(var(--automation-connector-line))',
+					'connector-bg': 'hsl(var(--automation-connector-bg))',
+					'connector-hover': 'hsl(var(--automation-connector-hover))'
+				},
 				secondary: {
 					DEFAULT: 'hsl(var(--secondary))',
 					foreground: 'hsl(var(--secondary-foreground))'
