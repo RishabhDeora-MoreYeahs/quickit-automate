@@ -1,5 +1,6 @@
 import { useState } from 'react';
-import { Zap, Edit2, Trash2, Settings } from 'lucide-react';
+import { Zap, Edit2, Trash2, Settings, Plus } from 'lucide-react';
+import { CustomTriggerBuilder } from './CustomTriggerBuilder';
 
 interface TriggerBlockProps {
   configured: boolean;
@@ -46,6 +47,7 @@ const mockTriggers = [
 
 export const TriggerBlock = ({ configured, data, onConfigure, onDelete }: TriggerBlockProps) => {
   const [showTriggerSelector, setShowTriggerSelector] = useState(false);
+  const [showCustomBuilder, setShowCustomBuilder] = useState(false);
 
   const handleTriggerSelect = (trigger: typeof mockTriggers[0]) => {
     onConfigure({
@@ -107,14 +109,47 @@ export const TriggerBlock = ({ configured, data, onConfigure, onDelete }: Trigge
                   </button>
                 ))}
               </div>
+              
+              <div className="border-t mt-4 pt-4">
+                <button
+                  onClick={() => {
+                    setShowTriggerSelector(false);
+                    setShowCustomBuilder(true);
+                  }}
+                  className="w-full p-3 border-2 border-dashed border-automation-primary text-automation-primary rounded-lg hover:bg-automation-primary-light transition-colors"
+                >
+                  <div className="flex items-center justify-center gap-2">
+                    <Plus className="w-4 h-4" />
+                    <span className="font-medium">Create Custom Trigger</span>
+                  </div>
+                </button>
+              </div>
+              
               <button
                 onClick={() => setShowTriggerSelector(false)}
-                className="mt-4 w-full automation-btn-secondary"
+                className="mt-3 w-full automation-btn-secondary"
               >
                 Cancel
               </button>
             </div>
           </div>
+        )}
+
+        {/* Custom Trigger Builder */}
+        {showCustomBuilder && (
+          <CustomTriggerBuilder
+            onSave={(trigger) => {
+              onConfigure({
+                appName: 'Custom',
+                triggerName: trigger.name,
+                description: trigger.description,
+                appIcon: '⚙️',
+                customConfig: trigger
+              });
+              setShowCustomBuilder(false);
+            }}
+            onCancel={() => setShowCustomBuilder(false)}
+          />
         )}
       </div>
     );

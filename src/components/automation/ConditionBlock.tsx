@@ -1,16 +1,17 @@
 import { useState } from 'react';
-import { Diamond, Edit2, Trash2 } from 'lucide-react';
+import { Diamond, Edit2, Trash2, Plus } from 'lucide-react';
+import { CustomConditionBuilder } from './CustomConditionBuilder';
 
 interface ConditionBlockProps {
   configured: boolean;
   data?: {
-    field: string;
-    operator: string;
-    value: string;
+    conditionName: string;
     description: string;
+    rules?: any[];
   };
   onConfigure: (data: any) => void;
   onDelete: () => void;
+  availableVariables?: Array<{ name: string; type: string; source: string; description?: string }>;
 }
 
 const mockConditions = [
@@ -40,8 +41,9 @@ const mockConditions = [
   }
 ];
 
-export const ConditionBlock = ({ configured, data, onConfigure, onDelete }: ConditionBlockProps) => {
+export const ConditionBlock = ({ configured, data, onConfigure, onDelete, availableVariables = [] }: ConditionBlockProps) => {
   const [showConditionSelector, setShowConditionSelector] = useState(false);
+  const [showCustomBuilder, setShowCustomBuilder] = useState(false);
   const [selectedCondition, setSelectedCondition] = useState<typeof mockConditions[0] | null>(null);
   const [conditionValue, setConditionValue] = useState('');
 
@@ -148,6 +150,23 @@ export const ConditionBlock = ({ configured, data, onConfigure, onDelete }: Cond
                 </div>
               )}
               
+              {!selectedCondition && (
+                <div className="border-t mt-4 pt-4">
+                  <button
+                    onClick={() => {
+                      setShowConditionSelector(false);
+                      setShowCustomBuilder(true);
+                    }}
+                    className="w-full p-3 border-2 border-dashed border-automation-primary text-automation-primary rounded-lg hover:bg-automation-primary-light transition-colors"
+                  >
+                    <div className="flex items-center justify-center gap-2">
+                      <Plus className="w-4 h-4" />
+                      <span className="font-medium">Create Custom Condition</span>
+                    </div>
+                  </button>
+                </div>
+              )}
+              
               <button
                 onClick={() => setShowConditionSelector(false)}
                 className="mt-4 w-full automation-btn-secondary"
@@ -156,6 +175,23 @@ export const ConditionBlock = ({ configured, data, onConfigure, onDelete }: Cond
               </button>
             </div>
           </div>
+        )}
+
+        {/* Custom Condition Builder */}
+        {showCustomBuilder && (
+          <CustomConditionBuilder
+            availableVariables={availableVariables}
+            onSave={(condition) => {
+              onConfigure({
+                conditionName: condition.name,
+                description: `Custom condition with ${condition.rules?.length || 0} rules`,
+                rules: condition.rules,
+                customConfig: condition
+              });
+              setShowCustomBuilder(false);
+            }}
+            onCancel={() => setShowCustomBuilder(false)}
+          />
         )}
       </div>
     );

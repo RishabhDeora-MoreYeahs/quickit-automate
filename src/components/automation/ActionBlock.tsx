@@ -1,5 +1,6 @@
 import { useState } from 'react';
-import { Rocket, Edit2, Trash2 } from 'lucide-react';
+import { Rocket, Edit2, Trash2, Plus } from 'lucide-react';
+import { CustomActionBuilder } from './CustomActionBuilder';
 
 interface ActionBlockProps {
   configured: boolean;
@@ -8,10 +9,11 @@ interface ActionBlockProps {
     actionName: string;
     description: string;
     appIcon?: string;
-    mapping?: Record<string, string>;
+    fieldMapping?: any;
   };
   onConfigure: (data: any) => void;
   onDelete: () => void;
+  availableVariables?: Array<{ name: string; type: string; source: string; description?: string }>;
 }
 
 const mockActions = [
@@ -52,8 +54,9 @@ const mockActions = [
   }
 ];
 
-export const ActionBlock = ({ configured, data, onConfigure, onDelete }: ActionBlockProps) => {
+export const ActionBlock = ({ configured, data, onConfigure, onDelete, availableVariables = [] }: ActionBlockProps) => {
   const [showActionSelector, setShowActionSelector] = useState(false);
+  const [showCustomBuilder, setShowCustomBuilder] = useState(false);
 
   const handleActionSelect = (action: typeof mockActions[0]) => {
     onConfigure({
@@ -120,14 +123,49 @@ export const ActionBlock = ({ configured, data, onConfigure, onDelete }: ActionB
                   </button>
                 ))}
               </div>
+              
+              <div className="border-t mt-4 pt-4">
+                <button
+                  onClick={() => {
+                    setShowActionSelector(false);
+                    setShowCustomBuilder(true);
+                  }}
+                  className="w-full p-3 border-2 border-dashed border-automation-primary text-automation-primary rounded-lg hover:bg-automation-primary-light transition-colors"
+                >
+                  <div className="flex items-center justify-center gap-2">
+                    <Plus className="w-4 h-4" />
+                    <span className="font-medium">Create Custom Action</span>
+                  </div>
+                </button>
+              </div>
+              
               <button
                 onClick={() => setShowActionSelector(false)}
-                className="mt-4 w-full automation-btn-secondary"
+                className="mt-3 w-full automation-btn-secondary"
               >
                 Cancel
               </button>
             </div>
           </div>
+        )}
+
+        {/* Custom Action Builder */}
+        {showCustomBuilder && (
+          <CustomActionBuilder
+            availableVariables={availableVariables}
+            onSave={(action) => {
+              onConfigure({
+                appName: 'Custom',
+                actionName: action.name,
+                description: action.description,
+                appIcon: '⚙️',
+                fieldMapping: action.fieldMapping,
+                customConfig: action
+              });
+              setShowCustomBuilder(false);
+            }}
+            onCancel={() => setShowCustomBuilder(false)}
+          />
         )}
       </div>
     );
@@ -165,11 +203,11 @@ export const ActionBlock = ({ configured, data, onConfigure, onDelete }: ActionB
           </p>
 
           {/* Show field mapping if available */}
-          {data?.mapping && (
+          {data?.fieldMapping && (
             <div className="text-xs text-automation-text-muted bg-automation-canvas p-2 rounded">
-              {Object.entries(data.mapping).map(([field, value]) => (
+              {Object.entries(data.fieldMapping).map(([field, value]) => (
                 <div key={field}>
-                  <strong>{field}:</strong> {value}
+                  <strong>{field}:</strong> {String(value)}
                 </div>
               ))}
             </div>

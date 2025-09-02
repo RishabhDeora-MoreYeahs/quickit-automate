@@ -4,6 +4,7 @@ import { TriggerBlock } from '@/components/automation/TriggerBlock';
 import { ActionBlock } from '@/components/automation/ActionBlock';
 import { ConditionBlock } from '@/components/automation/ConditionBlock';
 import { WorkflowConnector } from '@/components/automation/WorkflowConnector';
+import { AutomationPreview } from '@/components/automation/AutomationPreview';
 
 interface WorkflowStep {
   id: string;
@@ -14,6 +15,7 @@ interface WorkflowStep {
 
 const Automate = () => {
   const [isAutomationOn, setIsAutomationOn] = useState(false);
+  const [showPreview, setShowPreview] = useState(false);
   const [workflowSteps, setWorkflowSteps] = useState<WorkflowStep[]>([
     { id: 'trigger-1', type: 'trigger', configured: false }
   ]);
@@ -49,6 +51,51 @@ const Automate = () => {
   };
 
   const renderStep = (step: WorkflowStep, index: number) => {
+    // Generate available variables from previous steps
+    const availableVariables = workflowSteps
+      .slice(0, index) // Only steps before current one
+      .filter(s => s.configured && s.data)
+      .flatMap(s => {
+        const variables = [];
+        
+        if (s.type === 'trigger') {
+          // Add trigger variables
+          if (s.data.customConfig?.outputSchema) {
+            Object.entries(s.data.customConfig.outputSchema).forEach(([key, type]) => {
+              variables.push({
+                name: `trigger.${key}`,
+                type: type as string,
+                source: `Trigger: ${s.data.triggerName}`,
+                description: `From ${s.data.triggerName} trigger`
+              });
+            });
+          } else {
+            // Default trigger variables for mock triggers
+            variables.push(
+              { name: 'trigger.id', type: 'string', source: `Trigger: ${s.data.triggerName}`, description: 'Unique trigger ID' },
+              { name: 'trigger.timestamp', type: 'string', source: `Trigger: ${s.data.triggerName}`, description: 'When trigger occurred' },
+              { name: 'trigger.data', type: 'object', source: `Trigger: ${s.data.triggerName}`, description: 'Raw trigger data' }
+            );
+          }
+        } else if (s.type === 'condition') {
+          variables.push({
+            name: `condition_${index}.result`,
+            type: 'boolean',
+            source: `Condition: ${s.data.conditionName}`,
+            description: 'Condition evaluation result'
+          });
+        } else if (s.type === 'action') {
+          variables.push({
+            name: `action_${index}.result`,
+            type: 'object',
+            source: `Action: ${s.data.actionName}`,
+            description: 'Action execution result'
+          });
+        }
+        
+        return variables;
+      });
+
     switch (step.type) {
       case 'trigger':
         return (
@@ -68,6 +115,7 @@ const Automate = () => {
             data={step.data}
             onConfigure={(data) => configureStep(step.id, data)}
             onDelete={() => deleteStep(step.id)}
+            availableVariables={availableVariables}
           />
         );
       case 'action':
@@ -78,6 +126,7 @@ const Automate = () => {
             data={step.data}
             onConfigure={(data) => configureStep(step.id, data)}
             onDelete={() => deleteStep(step.id)}
+            availableVariables={availableVariables}
           />
         );
       default:
@@ -91,7 +140,7 @@ const Automate = () => {
         isAutomationOn={isAutomationOn}
         onToggleAutomation={setIsAutomationOn}
         canSave={hasRequiredSteps}
-        onSave={() => console.log('Saving automation...')}
+        onSave={() => setShowPreview(true)}
       />
       
       <main className="automation-canvas px-6 py-8">
@@ -118,6 +167,15 @@ const Automate = () => {
           </div>
         </div>
       </main>
+      
+      {/* Automation Preview Modal */}
+      {showPreview && (
+        <AutomationPreview
+          workflowSteps={workflowSteps}
+          onClose={() => setShowPreview(false)}
+          onTest={() => console.log('Test completed')}
+        />
+      )}
     </div>
   );
 };
