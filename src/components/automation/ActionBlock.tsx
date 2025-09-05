@@ -1,6 +1,10 @@
 import { useState } from 'react';
 import { Rocket, Edit2, Trash2, Plus } from 'lucide-react';
 import { CustomActionBuilder } from './CustomActionBuilder';
+import { VariablePicker } from './VariablePicker';
+import { ServiceActionSelector } from './ServiceActionSelector';
+import { ServiceIntegrationManager } from './ServiceIntegrationManager';
+import { ServiceConfigurationForm } from './ServiceConfigurationForm';
 
 interface ActionBlockProps {
   configured: boolean;
@@ -57,6 +61,9 @@ const mockActions = [
 export const ActionBlock = ({ configured, data, onConfigure, onDelete, availableVariables = [] }: ActionBlockProps) => {
   const [showActionSelector, setShowActionSelector] = useState(false);
   const [showCustomBuilder, setShowCustomBuilder] = useState(false);
+  const [showServiceActions, setShowServiceActions] = useState(false);
+  const [showServiceManager, setShowServiceManager] = useState(false);
+  const [showServiceConfig, setShowServiceConfig] = useState<any>(null);
 
   const handleActionSelect = (action: typeof mockActions[0]) => {
     onConfigure({
@@ -90,12 +97,20 @@ export const ActionBlock = ({ configured, data, onConfigure, onDelete, available
             </p>
           </div>
 
-          <button
-            onClick={() => setShowActionSelector(true)}
-            className="automation-btn-primary"
-          >
-            Choose an Action
-          </button>
+          <div className="space-y-3">
+            <button
+              onClick={() => setShowActionSelector(true)}
+              className="automation-btn-primary"
+            >
+              Choose Basic Action
+            </button>
+            <button
+              onClick={() => setShowServiceActions(true)}
+              className="automation-btn-secondary"
+            >
+              Choose Service Action
+            </button>
+          </div>
         </div>
 
         {/* Action Selector Modal */}
@@ -165,6 +180,53 @@ export const ActionBlock = ({ configured, data, onConfigure, onDelete, available
               setShowCustomBuilder(false);
             }}
             onCancel={() => setShowCustomBuilder(false)}
+          />
+        )}
+
+        {/* Service Action Selector */}
+        {showServiceActions && (
+          <ServiceActionSelector
+            onSelect={(action) => {
+              setShowServiceActions(false);
+              setShowServiceConfig(action);
+            }}
+            onCancel={() => setShowServiceActions(false)}
+            onManageServices={() => {
+              setShowServiceActions(false);
+              setShowServiceManager(true);
+            }}
+          />
+        )}
+
+        {/* Service Configuration Form */}
+        {showServiceConfig && (
+          <ServiceConfigurationForm
+            service={showServiceConfig.service}
+            serviceIcon={showServiceConfig.serviceIcon}
+            actionName={showServiceConfig.name}
+            inputFields={showServiceConfig.inputFields || {}}
+            availableVariables={availableVariables}
+            onSave={(config) => {
+              onConfigure({
+                appName: config.service,
+                actionName: config.actionName,
+                description: showServiceConfig.description,
+                appIcon: config.serviceIcon,
+                serviceConfig: config
+              });
+              setShowServiceConfig(null);
+            }}
+            onCancel={() => setShowServiceConfig(null)}
+          />
+        )}
+
+        {/* Service Integration Manager */}
+        {showServiceManager && (
+          <ServiceIntegrationManager
+            onClose={() => {
+              setShowServiceManager(false);
+              setShowServiceActions(true);
+            }}
           />
         )}
       </div>

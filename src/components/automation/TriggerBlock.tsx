@@ -1,6 +1,8 @@
 import { useState } from 'react';
 import { Zap, Edit2, Trash2, Settings, Plus } from 'lucide-react';
 import { CustomTriggerBuilder } from './CustomTriggerBuilder';
+import { ServiceTriggerSelector } from './ServiceTriggerSelector';
+import { ServiceIntegrationManager } from './ServiceIntegrationManager';
 
 interface TriggerBlockProps {
   configured: boolean;
@@ -48,6 +50,8 @@ const mockTriggers = [
 export const TriggerBlock = ({ configured, data, onConfigure, onDelete }: TriggerBlockProps) => {
   const [showTriggerSelector, setShowTriggerSelector] = useState(false);
   const [showCustomBuilder, setShowCustomBuilder] = useState(false);
+  const [showServiceTriggers, setShowServiceTriggers] = useState(false);
+  const [showServiceManager, setShowServiceManager] = useState(false);
 
   const handleTriggerSelect = (trigger: typeof mockTriggers[0]) => {
     onConfigure({
@@ -76,12 +80,20 @@ export const TriggerBlock = ({ configured, data, onConfigure, onDelete }: Trigge
             </p>
           </div>
 
-          <button
-            onClick={() => setShowTriggerSelector(true)}
-            className="automation-btn-primary"
-          >
-            Choose a Trigger
-          </button>
+          <div className="space-y-3">
+            <button
+              onClick={() => setShowTriggerSelector(true)}
+              className="automation-btn-primary"
+            >
+              Choose Basic Trigger
+            </button>
+            <button
+              onClick={() => setShowServiceTriggers(true)}
+              className="automation-btn-secondary"
+            >
+              Choose Service Trigger
+            </button>
+          </div>
         </div>
 
         {/* Trigger Selector Modal */}
@@ -133,6 +145,37 @@ export const TriggerBlock = ({ configured, data, onConfigure, onDelete }: Trigge
               </button>
             </div>
           </div>
+        )}
+
+        {/* Service Trigger Selector */}
+        {showServiceTriggers && (
+          <ServiceTriggerSelector
+            onSelect={(trigger) => {
+              onConfigure({
+                appName: trigger.service,
+                triggerName: trigger.name,
+                description: trigger.description,
+                appIcon: trigger.serviceIcon,
+                serviceConfig: trigger
+              });
+              setShowServiceTriggers(false);
+            }}
+            onCancel={() => setShowServiceTriggers(false)}
+            onManageServices={() => {
+              setShowServiceTriggers(false);
+              setShowServiceManager(true);
+            }}
+          />
+        )}
+
+        {/* Service Integration Manager */}
+        {showServiceManager && (
+          <ServiceIntegrationManager
+            onClose={() => {
+              setShowServiceManager(false);
+              setShowServiceTriggers(true);
+            }}
+          />
         )}
 
         {/* Custom Trigger Builder */}
